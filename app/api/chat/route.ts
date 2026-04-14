@@ -2,11 +2,17 @@ import Anthropic from '@anthropic-ai/sdk';
 import { buildSystemPrompt } from '@/lib/prompts';
 import { type LanguageCode, getLanguage, getDefaultLevel } from '@/lib/languages';
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
-
 export async function POST(request: Request) {
+  // Check key first — fail fast with a clear message
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return Response.json(
+      { error: 'ANTHROPIC_API_KEY is not configured in environment variables.' },
+      { status: 500 }
+    );
+  }
+
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
   try {
     const body = await request.json();
     const {
@@ -34,7 +40,7 @@ export async function POST(request: Request) {
 
     const stream = await client.messages.stream({
       model: 'claude-sonnet-4-6',
-      max_tokens: 512, // Keep responses short — this is a chat app
+      max_tokens: 512,
       system: systemPrompt,
       messages: messages.map((m: { role: string; content: string }) => ({
         role: m.role as 'user' | 'assistant',
@@ -73,7 +79,8 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error('Chat API error:', error);
-    return Response.json({ error: 'Failed to process request' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Chat API error:', message);
+    return Response.json({ error: message }, { status: 500 });
   }
 }

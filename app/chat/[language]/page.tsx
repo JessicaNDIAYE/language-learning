@@ -209,7 +209,11 @@ export default function ChatPage({ params }: PageProps) {
         }),
       });
 
-      if (!response.ok) throw new Error(`${response.status}`);
+      if (!response.ok) {
+        // Read the JSON error body and surface it directly
+        const errData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+        throw new Error(errData.error || `HTTP ${response.status}`);
+      }
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
@@ -241,8 +245,9 @@ export default function ChatPage({ params }: PageProps) {
         }
       }
     } catch (err) {
-      console.error(err);
-      setError('Connection issue — add your ANTHROPIC_API_KEY to .env.local');
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('Chat error:', msg);
+      setError(`⚠️ ${msg}`);
       setMessages(prev => prev.filter(m => m.id !== assistantId));
     } finally {
       setIsLoading(false);
