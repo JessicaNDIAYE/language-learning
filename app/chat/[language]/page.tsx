@@ -494,8 +494,18 @@ export default function ChatPage({ params }: PageProps) {
         </div>
 
         {error && (
-          <div className="mt-3 px-4 py-3 rounded-2xl text-xs" style={{ background: '#FFE4E6', color: '#E11D48' }}>
-            ⚠️ {error}
+          <div className="mt-3 px-4 py-3 rounded-2xl text-xs flex flex-col gap-1" style={{ background: '#FFE4E6', color: '#E11D48' }}>
+            <span className="font-bold">Error</span>
+            <span style={{ wordBreak: 'break-word' }}>{error}</span>
+            <a
+              href="/api/health"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline mt-1 font-semibold"
+              style={{ color: '#C81E3A' }}
+            >
+              → Check /api/health to diagnose
+            </a>
           </div>
         )}
 

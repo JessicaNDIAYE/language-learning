@@ -4,7 +4,6 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "LinguaAI – Learn Korean, Chinese & Spanish",
   description: "AI-powered language learning app for Korean, Chinese, and Spanish. Have real conversations with your AI tutor.",
-  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
