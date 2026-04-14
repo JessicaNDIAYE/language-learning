@@ -3,56 +3,69 @@ import { buildSystemPrompt } from '@/lib/prompts';
 import { type LanguageCode, getLanguage, getDefaultLevel } from '@/lib/languages';
 
 export async function POST(request: Request) {
-  // Check key first — fail fast with a clear message
   if (!process.env.ANTHROPIC_API_KEY) {
     return Response.json(
-      { error: 'ANTHROPIC_API_KEY is not configured in environment variables.' },
+      { error: 'ANTHROPIC_API_KEY is not set in Vercel environment variables.' },
       { status: 500 }
     );
   }
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+  let body: unknown;
   try {
-    const body = await request.json();
-    const {
-      messages,
-      language = 'spanish',
-      levelCode,
-      scenario = null,
-      memory = null,
-    } = body;
+    body = await request.json();
+  } catch {
+    return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
 
-    if (!messages || !Array.isArray(messages)) {
-      return Response.json({ error: 'Invalid messages format' }, { status: 400 });
-    }
+  const {
+    messages,
+    language = 'spanish',
+    levelCode,
+    scenario = null,
+    memory = null,
+  } = body as Record<string, unknown>;
 
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return Response.json({ error: 'messages must be a non-empty array' }, { status: 400 });
+  }
+
+  let systemPrompt: string;
+  try {
     const lang = getLanguage(language as LanguageCode);
-    const resolvedLevel = levelCode || getDefaultLevel(lang.levelSystem);
-
-    const systemPrompt = buildSystemPrompt({
+    const resolvedLevel = (levelCode as string) || getDefaultLevel(lang.levelSystem);
+    systemPrompt = buildSystemPrompt({
       language: language as LanguageCode,
       levelCode: resolvedLevel,
       levelSystem: lang.levelSystem,
-      scenario,
-      userMemory: memory,
+      scenario: (scenario as string) || null,
+      userMemory: (memory as string) || null,
     });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return Response.json({ error: `Prompt build failed: ${msg}` }, { status: 500 });
+  }
 
-    const stream = await client.messages.stream({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 512,
-      system: systemPrompt,
-      messages: messages.map((m: { role: string; content: string }) => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-      })),
-    });
+  // Use non-streaming create so we can catch Anthropic errors before sending headers
+  try {
+    const anthropicMessages = (messages as Array<{ role: string; content: string }>).map(m => ({
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+    }));
 
     const encoder = new TextEncoder();
 
     const readableStream = new ReadableStream({
       async start(controller) {
         try {
+          const stream = client.messages.stream({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 512,
+            system: systemPrompt,
+            messages: anthropicMessages,
+          });
+
           for await (const chunk of stream) {
             if (
               chunk.type === 'content_block_delta' &&
@@ -66,7 +79,13 @@ export async function POST(request: Request) {
           controller.enqueue(encoder.encode('data: [DONE]\n\n'));
           controller.close();
         } catch (err) {
-          controller.error(err);
+          const msg = err instanceof Error ? err.message : String(err);
+          // Send the error as a data event so the client can read it
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ error: msg })}\n\n`)
+          );
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+          controller.close();
         }
       },
     });

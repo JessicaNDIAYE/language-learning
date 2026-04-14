@@ -234,6 +234,9 @@ export default function ChatPage({ params }: PageProps) {
           if (data === '[DONE]') break;
           try {
             const parsed = JSON.parse(data);
+            if (parsed.error) {
+              throw new Error(parsed.error);
+            }
             if (parsed.text) {
               setMessages(prev =>
                 prev.map(m =>
