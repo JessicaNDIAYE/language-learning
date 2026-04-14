@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+:root {
+  --yellow: #FFE566;
+  --pink: #FFB5C8;
+  --purple: #C9B8FF;
+  --mint: #B8F5D0;
+  --blue: #B8E4FF;
+  --coral: #FFB89A;
+  --dark: #1A1A2E;
+  --card-bg: #FFFFFF;
+  --body-bg: #F8F7FF;
+  --text-primary: #1A1A2E;
+  --text-secondary: #6B7280;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  background: #E8E6F0;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Mobile viewport wrapper */
+.mobile-shell {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: var(--body-bg);
+  position: relative;
+  overflow-x: hidden;
+  box-shadow: 0 0 60px rgba(0,0,0,0.15);
+}
+
+/* Scrollable content above bottom nav */
+.screen-content {
+  padding-bottom: 90px;
+  min-height: 100dvh;
+  overflow-y: auto;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 0; }
+
+/* Bottom Nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: white;
+  border-top: 1px solid #F0EEF8;
+  padding: 12px 0 24px;
+  z-index: 50;
+}
+
+/* Cards */
+.card {
+  background: white;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 2px 16px rgba(26, 26, 46, 0.06);
+}
+
+/* Chat bubble */
+.chat-bubble-user {
+  background: var(--purple);
+  border-radius: 20px 20px 4px 20px;
+}
+
+.chat-bubble-ai {
+  background: white;
+  border-radius: 20px 20px 20px 4px;
+  box-shadow: 0 2px 12px rgba(26,26,46,0.08);
+}
+
+/* Shimmer animation for loading */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Typing indicator */
+@keyframes bounce-dot {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.typing-dot {
+  animation: bounce-dot 1s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Streak flame pulse */
+@keyframes pulse-flame {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+.pulse-flame {
+  animation: pulse-flame 2s infinite;
+}
