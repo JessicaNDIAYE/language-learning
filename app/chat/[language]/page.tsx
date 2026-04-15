@@ -13,7 +13,7 @@ import {
 } from '@/lib/languages';
 import {
   getMessages, saveMessages, getLanguageSettings, saveLanguageSettings,
-  buildMemorySummary, setLastLanguage, type StoredMessage,
+  buildMemorySummary, setLastLanguage, type StoredMessage, type VibeLevel,
 } from '@/lib/storage';
 
 interface Message {
@@ -83,6 +83,7 @@ export default function ChatPage({ params }: PageProps) {
   // Always start with the default level (same on server + client) → no hydration mismatch
   // localStorage value is loaded in useEffect below
   const [levelCode, setLevelCode] = useState(defaultLevel);
+  const [vibeLevel, setVibeLevel] = useState<VibeLevel>('normal');
 
   // Scenario & UI state
   const [activeScenario, setActiveScenario] = useState<typeof ROLEPLAY_SCENARIOS[0] | null>(null);
@@ -105,6 +106,7 @@ export default function ChatPage({ params }: PageProps) {
     // Load saved level from localStorage (client-only, after hydration)
     const savedSettings = getLanguageSettings(language);
     if (savedSettings.level) setLevelCode(savedSettings.level);
+    if (savedSettings.vibeLevel) setVibeLevel(savedSettings.vibeLevel);
 
     const stored = getMessages(language);
     const starter = searchParams.get('starter');
@@ -210,6 +212,7 @@ export default function ChatPage({ params }: PageProps) {
             ? `${activeScenario.title}: ${activeScenario.context} You play: ${activeScenario.aiRole}. User plays: ${activeScenario.userRole}.`
             : null,
           memory,
+          vibeLevel,
         }),
       });
 
@@ -406,20 +409,49 @@ export default function ChatPage({ params }: PageProps) {
 
         {showMenu && (
           <div
-            className="absolute right-4 top-20 rounded-2xl overflow-hidden z-20 w-44 shadow-2xl"
+            className="absolute right-4 top-20 rounded-2xl overflow-hidden z-20 w-56 shadow-2xl"
             style={{ background: 'white', border: '1px solid #F0EEF8' }}
           >
             <button
               onClick={() => { setShowScenarioSheet(true); setShowMenu(false); }}
-              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-sm font-medium"
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium"
               style={{ color: '#1A1A2E', borderBottom: '1px solid #F8F7FF' }}
             >
               <Theater size={15} style={{ color: lang.color === '#FFE566' ? '#D4A800' : lang.color }} />
               Roleplay
             </button>
+            {/* Vibe picker */}
+            <div className="px-3 py-3" style={{ borderBottom: '1px solid #F8F7FF' }}>
+              <p className="text-[10px] font-semibold uppercase tracking-wide mb-2" style={{ color: '#9CA3AF' }}>
+                Vibe
+              </p>
+              <div className="flex gap-1.5">
+                {(['chill', 'normal', 'extra'] as const).map(v => {
+                  const icons = { chill: '😴', normal: '😊', extra: '🔥' } as const;
+                  const active = vibeLevel === v;
+                  return (
+                    <button
+                      key={v}
+                      onClick={() => {
+                        setVibeLevel(v);
+                        saveLanguageSettings(language, { vibeLevel: v });
+                        setShowMenu(false);
+                      }}
+                      className="flex-1 py-1.5 rounded-xl text-xs font-semibold capitalize"
+                      style={{
+                        background: active ? '#1A1A2E' : '#F8F7FF',
+                        color: active ? 'white' : '#6B7280',
+                      }}
+                    >
+                      {icons[v]} {v}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             <button
               onClick={resetChat}
-              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-sm font-medium"
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium"
               style={{ color: '#EF4444' }}
             >
               <Trash2 size={15} style={{ color: '#EF4444' }} />

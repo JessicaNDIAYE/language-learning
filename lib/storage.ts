@@ -1,6 +1,9 @@
 'use client';
 
 import type { LanguageCode } from './languages';
+import type { VibeLevel } from './prompts';
+
+export type { VibeLevel };
 
 export interface StoredMessage {
   role: 'user' | 'assistant';
@@ -12,6 +15,7 @@ export interface LanguageSettings {
   level: string;
   lastChatAt?: number;
   messageCount: number;
+  vibeLevel?: VibeLevel;
 }
 
 export interface UserMemory {

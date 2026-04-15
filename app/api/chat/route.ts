@@ -1,5 +1,5 @@
 import { Mistral } from '@mistralai/mistralai';
-import { buildSystemPrompt } from '@/lib/prompts';
+import { buildSystemPrompt, type VibeLevel } from '@/lib/prompts';
 import { type LanguageCode, getLanguage, getDefaultLevel } from '@/lib/languages';
 
 export async function POST(request: Request) {
@@ -25,6 +25,7 @@ export async function POST(request: Request) {
     levelCode,
     scenario = null,
     memory = null,
+    vibeLevel = 'normal',
   } = body as Record<string, unknown>;
 
   if (!Array.isArray(messages) || messages.length === 0) {
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
       levelSystem: lang.levelSystem,
       scenario: (scenario as string) || null,
       userMemory: (memory as string) || null,
+      vibeLevel: (vibeLevel as VibeLevel) || 'normal',
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
