@@ -79,10 +79,10 @@ export default function ChatPage({ params }: PageProps) {
   const searchParams = useSearchParams();
   const lang = getLanguage(language);
 
-  // Load settings from storage
-  const savedSettings = typeof window !== 'undefined' ? getLanguageSettings(language) : { level: '', messageCount: 0 };
   const defaultLevel = getDefaultLevel(lang.levelSystem);
-  const [levelCode, setLevelCode] = useState(savedSettings.level || defaultLevel);
+  // Always start with the default level (same on server + client) → no hydration mismatch
+  // localStorage value is loaded in useEffect below
+  const [levelCode, setLevelCode] = useState(defaultLevel);
 
   // Scenario & UI state
   const [activeScenario, setActiveScenario] = useState<typeof ROLEPLAY_SCENARIOS[0] | null>(null);
@@ -102,6 +102,10 @@ export default function ChatPage({ params }: PageProps) {
   // Initialize: load history or create opener
   useEffect(() => {
     setLastLanguage(language);
+    // Load saved level from localStorage (client-only, after hydration)
+    const savedSettings = getLanguageSettings(language);
+    if (savedSettings.level) setLevelCode(savedSettings.level);
+
     const stored = getMessages(language);
     const starter = searchParams.get('starter');
     const scenario = searchParams.get('scenario');
@@ -232,19 +236,22 @@ export default function ChatPage({ params }: PageProps) {
           if (!line.startsWith('data: ')) continue;
           const data = line.slice(6);
           if (data === '[DONE]') break;
-          try {
-            const parsed = JSON.parse(data);
-            if (parsed.error) {
-              throw new Error(parsed.error);
-            }
-            if (parsed.text) {
-              setMessages(prev =>
-                prev.map(m =>
-                  m.id === assistantId ? { ...m, content: m.content + parsed.text } : m
-                )
-              );
-            }
-          } catch { /* ignore */ }
+
+          // Parse JSON separately so parse errors don't swallow real errors
+          let parsed: { text?: string; error?: string } | null = null;
+          try { parsed = JSON.parse(data); } catch { continue; }
+
+          if (parsed?.error) {
+            // Re-throw so outer catch block handles it and clears the typing dots
+            throw new Error(parsed.error);
+          }
+          if (parsed?.text) {
+            setMessages(prev =>
+              prev.map(m =>
+                m.id === assistantId ? { ...m, content: m.content + parsed!.text } : m
+              )
+            );
+          }
         }
       }
     } catch (err) {
