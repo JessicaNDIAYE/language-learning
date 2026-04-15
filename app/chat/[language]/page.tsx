@@ -11,6 +11,7 @@ import {
   getLanguage, getDefaultLevel, getLevelInfo, getLevels,
   ROLEPLAY_SCENARIOS, type LanguageCode,
 } from '@/lib/languages';
+import AIAvatar from '@/components/AIAvatar';
 import {
   getMessages, saveMessages, getLanguageSettings, saveLanguageSettings,
   buildMemorySummary, setLastLanguage, type StoredMessage, type VibeLevel,
@@ -335,12 +336,9 @@ export default function ChatPage({ params }: PageProps) {
         </Link>
 
         {/* Avatar */}
-        <div className="relative">
-          <div
-            className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl"
-            style={{ background: lang.bgColor }}
-          >
-            {lang.flag}
+        <div className="relative flex-shrink-0">
+          <div className="w-11 h-11 rounded-2xl overflow-hidden">
+            <AIAvatar language={language} />
           </div>
           <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2" style={{ background: '#4ADE80', borderColor: '#1A1A2E' }} />
         </div>
@@ -394,7 +392,7 @@ export default function ChatPage({ params }: PageProps) {
                     <p className="text-xs font-bold text-white">{l.label}</p>
                     <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.4)' }}>{l.canDo}</p>
                   </div>
-                  {l.code === levelCode && <div className="w-2 h-2 rounded-full" style={{ background: lang.color === '#FFE566' ? '#D4A800' : lang.color }} />}
+                  {l.code === levelCode && <div className="w-2 h-2 rounded-full" style={{ background: lang.color }} />}
                 </button>
               ))}
             </div>
@@ -417,7 +415,7 @@ export default function ChatPage({ params }: PageProps) {
               className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium"
               style={{ color: '#1A1A2E', borderBottom: '1px solid #F8F7FF' }}
             >
-              <Theater size={15} style={{ color: lang.color === '#FFE566' ? '#D4A800' : lang.color }} />
+              <Theater size={15} style={{ color: lang.color }} />
               Roleplay
             </button>
             {/* Vibe picker */}

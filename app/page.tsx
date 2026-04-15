@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Bell, Zap, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
-import { LANGUAGES, DAILY_STARTERS, getDailyStarter, getDefaultLevel } from '@/lib/languages';
+import AIAvatar from '@/components/AIAvatar';
+import LanguageFlag from '@/components/LanguageFlag';
+import { LANGUAGES, getDailyStarter, getDefaultLevel } from '@/lib/languages';
 import { getLanguageSettings, getMessages } from '@/lib/storage';
 
 const LANG_ORDER = ['spanish', 'french', 'korean', 'chinese', 'english'] as const;
@@ -19,18 +21,17 @@ function timeAgo(ms: number): string {
 }
 
 export default function HomePage() {
-  const [daily, setDaily] = useState(DAILY_STARTERS[0]);
-  const [greeting, setGreeting] = useState('hey there 👋');
+  const [daily, setDaily] = useState(() => getDailyStarter());
+  const [greeting, setGreeting] = useState('hey there');
   const [langData, setLangData] = useState<Record<string, { level: string; lastActive?: number; msgCount: number; preview: string }>>({});
 
   useEffect(() => {
-    // Time-sensitive values — only set on client to avoid hydration mismatch
     const hour = new Date().getHours();
     setGreeting(
-      hour < 5  ? "still up? same 👀" :
-      hour < 12 ? "good morning!" :
-      hour < 17 ? "hey there 👋" :
-      hour < 21 ? "evening 🌆" : "night owl? 🌙"
+      hour < 5  ? 'still up? same' :
+      hour < 12 ? 'good morning!' :
+      hour < 17 ? 'hey there' :
+      hour < 21 ? 'good evening' : 'night owl?'
     );
     setDaily(getDailyStarter());
 
@@ -51,148 +52,125 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="mobile-shell">
+    <div className="mobile-shell" style={{ background: '#F0EDE8' }}>
       <div className="screen-content">
         {/* Header */}
+        <div className="pt-14 pb-4 px-5 bg-transparent">
+          <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{greeting}</p>
+          <h1 className="text-2xl font-bold leading-tight" style={{ color: '#1C1917' }}>
+            Your AI Friends
+          </h1>
+        </div>
+
+        {/* Daily Starter Card */}
         <div
-          className="px-5 pt-14 pb-5"
-          style={{ background: 'white', borderBottom: '1px solid #F0EEF8' }}
+          className="mx-5 mb-5 p-5 rounded-3xl"
+          style={{ background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{greeting}</p>
-              <h1 className="text-2xl font-bold leading-tight" style={{ color: '#1A1A2E' }}>
-                Your AI Friends
-              </h1>
-            </div>
-            <div className="flex gap-2">
-              <button className="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center">
-                <Search size={16} style={{ color: '#6B7280' }} />
-              </button>
-              <button className="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center relative">
-                <Bell size={16} style={{ color: '#6B7280' }} />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-400" />
-              </button>
+          {/* Topic pill + emoji */}
+          <div className="flex items-center gap-2 mb-3">
+            <div
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+              style={{ background: '#F0EDE8' }}
+            >
+              <span className="text-sm">{daily.emoji}</span>
+              <span className="text-xs font-semibold" style={{ color: '#78716C' }}>{daily.topic}</span>
             </div>
           </div>
-        </div>
 
-        {/* Daily Topic Card */}
-        <div className="px-5 pt-5 mb-2">
-          <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: '#9CA3AF' }}>
-            Today's conversation starter
+          {/* Hook text */}
+          <p className="text-sm font-medium leading-relaxed mb-3" style={{ color: '#1C1917' }}>
+            &ldquo;{daily.hook}&rdquo;
           </p>
-          <div
-            className="rounded-3xl p-5"
-            style={{ background: 'linear-gradient(135deg, #1A1A2E 0%, #2D2B55 100%)' }}
-          >
-            <div className="flex items-start gap-4">
-              <span className="text-3xl flex-shrink-0">{daily.emoji}</span>
-              <div className="flex-1">
-                <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  {daily.topic}
-                </p>
-                <p className="text-white font-medium text-sm leading-relaxed">
-                  "{daily.hook}"
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center justify-between">
-              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                Pick a language to answer this →
-              </p>
-              <Zap size={14} fill="#FFE566" style={{ color: '#FFE566' }} />
-            </div>
-          </div>
-        </div>
 
-        {/* Quick language picker for daily */}
-        <div className="px-5 mb-5">
-          <div className="flex gap-2 overflow-x-auto py-2" style={{ scrollbarWidth: 'none' }}>
+          {/* Language chips */}
+          <p className="text-[10px] mb-2" style={{ color: '#9CA3AF' }}>talk about it in &rarr;</p>
+          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
             {LANG_ORDER.map((code) => {
               const lang = LANGUAGES[code];
               return (
                 <Link
                   key={code}
                   href={`/chat/${code}?starter=${encodeURIComponent(daily.hook)}`}
-                  className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-2xl"
+                  className="flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full"
                   style={{ background: lang.bgColor }}
                 >
-                  <span className="text-lg">{lang.flag}</span>
-                  <span className="text-xs font-semibold" style={{ color: '#1A1A2E' }}>{lang.name}</span>
+                  <div className="w-4 h-[10px] overflow-hidden rounded-sm flex-shrink-0">
+                    <LanguageFlag language={code} />
+                  </div>
+                  <span className="text-[10px] font-bold" style={{ color: lang.color }}>{lang.name}</span>
                 </Link>
               );
             })}
           </div>
         </div>
 
-        {/* Language Chat List */}
+        {/* Chat List */}
         <div className="px-5">
           <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: '#9CA3AF' }}>
-            Your chats
+            your chats
           </p>
           <div className="flex flex-col">
-            {LANG_ORDER.map((code, i) => {
+            {LANG_ORDER.map((code) => {
               const lang = LANGUAGES[code];
               const data = langData[code];
-              const isLastItem = i === LANG_ORDER.length - 1;
 
               return (
                 <Link key={code} href={`/chat/${code}`}>
                   <div
-                    className="flex items-center gap-4 py-4"
-                    style={{ borderBottom: isLastItem ? 'none' : '1px solid #F8F7FF' }}
+                    className="flex items-center gap-3 p-3.5 rounded-2xl mb-3"
+                    style={{ background: 'white', boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}
                   >
-                    {/* Avatar */}
+                    {/* Avatar zone */}
                     <div className="relative flex-shrink-0">
-                      <div
-                        className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
-                        style={{ background: lang.bgColor }}
-                      >
-                        {lang.flag}
+                      <div className="w-16 h-16 rounded-2xl overflow-hidden">
+                        <AIAvatar language={code} />
                       </div>
+                      {/* Flag badge */}
                       <div
-                        className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white"
-                        style={{ background: '#4ADE80' }}
-                      />
+                        className="absolute overflow-hidden"
+                        style={{
+                          bottom: -4,
+                          right: -4,
+                          width: 28,
+                          height: 18,
+                          borderRadius: 3,
+                          border: '2px solid white',
+                        }}
+                      >
+                        <LanguageFlag language={code} />
+                      </div>
                     </div>
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
+                      {/* Row 1: name + time */}
                       <div className="flex items-center justify-between mb-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm" style={{ color: '#1A1A2E' }}>
-                            {lang.aiName}
-                          </span>
-                          <span
-                            className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                            style={{ background: lang.bgColor, color: '#1A1A2E' }}
-                          >
-                            {data?.level || getDefaultLevel(lang.levelSystem)}
-                          </span>
-                        </div>
-                        <span className="text-[10px]" style={{ color: '#C4C4C4' }}>
+                        <span className="font-bold text-sm" style={{ color: '#1C1917' }}>
+                          {lang.aiName}
+                        </span>
+                        <span className="text-[10px]" style={{ color: '#D1D5DB' }}>
                           {data?.lastActive ? timeAgo(data.lastActive) : 'never'}
                         </span>
                       </div>
-                      <p className="text-xs leading-snug truncate" style={{ color: '#9CA3AF' }}>
+                      {/* Row 2: language name + level badge */}
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[11px]" style={{ color: '#9CA3AF' }}>{lang.name}</span>
+                        <span
+                          className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                          style={{ background: lang.bgColor, color: lang.color }}
+                        >
+                          {data?.level || getDefaultLevel(lang.levelSystem)}
+                        </span>
+                      </div>
+                      {/* Preview */}
+                      <p className="text-xs truncate" style={{ color: '#9CA3AF' }}>
                         {data?.preview || lang.lastMessage}
                       </p>
                     </div>
 
-                    {/* Unread / chevron */}
-                    <div className="flex-shrink-0 flex items-center">
-                      {!data?.lastActive ? (
-                        <div
-                          className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
-                          style={{ background: lang.color === '#FFE566' ? '#D4A800' : lang.color }}
-                        >
-                          N
-                        </div>
-                      ) : (
-                        <ChevronRight size={14} style={{ color: '#D1D5DB' }} />
-                      )}
-                    </div>
+                    {/* Chevron */}
+                    <ChevronRight size={14} style={{ color: '#E5E7EB', flexShrink: 0 }} />
                   </div>
                 </Link>
               );
@@ -203,7 +181,7 @@ export default function HomePage() {
         {/* Bottom hint */}
         <div className="px-5 py-6 text-center">
           <p className="text-xs" style={{ color: '#C4C4C4' }}>
-            tap a language to start chatting • all conversations saved locally
+            tap a language to start chatting &bull; all conversations saved locally
           </p>
         </div>
       </div>
