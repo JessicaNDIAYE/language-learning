@@ -260,6 +260,14 @@ export default function ChatPage({ params }: PageProps) {
       setError(`⚠️ ${msg}`);
       setMessages(prev => prev.filter(m => m.id !== assistantId));
     } finally {
+      // Remove placeholder if stream ended with no content (avoids empty-msg Mistral 400 on next turn)
+      setMessages(prev => {
+        const placeholder = prev.find(m => m.id === assistantId);
+        if (placeholder && placeholder.content === '') {
+          return prev.filter(m => m.id !== assistantId);
+        }
+        return prev;
+      });
       setIsLoading(false);
       setTimeout(() => inputRef.current?.focus(), 100);
     }

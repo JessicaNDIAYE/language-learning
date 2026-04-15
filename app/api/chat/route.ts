@@ -55,10 +55,13 @@ export async function POST(request: Request) {
         const mistralMessages = [
           // Mistral uses system as a role inside messages array
           { role: 'system' as const, content: systemPrompt },
-          ...(messages as Array<{ role: string; content: string }>).map(m => ({
-            role: m.role as 'user' | 'assistant',
-            content: m.content,
-          })),
+          // Filter out any empty-content messages — Mistral rejects them with 400
+          ...(messages as Array<{ role: string; content: string }>)
+            .filter(m => typeof m.content === 'string' && m.content.trim() !== '')
+            .map(m => ({
+              role: m.role as 'user' | 'assistant',
+              content: m.content,
+            })),
         ];
 
         const stream = await client.chat.stream({
