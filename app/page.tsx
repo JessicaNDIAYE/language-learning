@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Bell, Zap, ChevronRight } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
-import { LANGUAGES, getDailyStarter, getDefaultLevel } from '@/lib/languages';
+import { LANGUAGES, DAILY_STARTERS, getDailyStarter, getDefaultLevel } from '@/lib/languages';
 import { getLanguageSettings, getMessages } from '@/lib/storage';
 
 const LANG_ORDER = ['spanish', 'french', 'korean', 'chinese', 'english'] as const;
@@ -19,18 +19,27 @@ function timeAgo(ms: number): string {
 }
 
 export default function HomePage() {
-  const daily = getDailyStarter();
+  const [daily, setDaily] = useState(DAILY_STARTERS[0]);
+  const [greeting, setGreeting] = useState('hey there 👋');
   const [langData, setLangData] = useState<Record<string, { level: string; lastActive?: number; msgCount: number; preview: string }>>({});
 
   useEffect(() => {
+    // Time-sensitive values — only set on client to avoid hydration mismatch
+    const hour = new Date().getHours();
+    setGreeting(
+      hour < 5  ? "still up? same 👀" :
+      hour < 12 ? "good morning!" :
+      hour < 17 ? "hey there 👋" :
+      hour < 21 ? "evening 🌆" : "night owl? 🌙"
+    );
+    setDaily(getDailyStarter());
+
     const data: typeof langData = {};
     for (const code of LANG_ORDER) {
       const lang = LANGUAGES[code];
       const settings = getLanguageSettings(code);
       const messages = getMessages(code);
-      const lastUser = messages.filter(m => m.role === 'user').slice(-1)[0];
       const lastAI = messages.filter(m => m.role === 'assistant').slice(-1)[0];
-
       data[code] = {
         level: settings.level || getDefaultLevel(lang.levelSystem),
         lastActive: settings.lastChatAt,
@@ -40,13 +49,6 @@ export default function HomePage() {
     }
     setLangData(data);
   }, []);
-
-  const hour = new Date().getHours();
-  const greeting =
-    hour < 5 ? "still up? same 👀" :
-    hour < 12 ? "good morning!" :
-    hour < 17 ? "hey there 👋" :
-    hour < 21 ? "evening 🌆" : "night owl? 🌙";
 
   return (
     <div className="mobile-shell">
