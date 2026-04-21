@@ -1,5 +1,5 @@
-export type LanguageCode = 'chinese' | 'korean' | 'spanish' | 'french' | 'english';
-export type LevelSystem = 'HSK' | 'TOPIK' | 'CEFR';
+export type LanguageCode = 'chinese' | 'korean' | 'spanish' | 'french' | 'english' | 'japanese' | 'dutch' | 'thai';
+export type LevelSystem = 'HSK' | 'TOPIK' | 'CEFR' | 'JLPT';
 
 export interface LevelInfo {
   code: string;
@@ -66,6 +66,14 @@ export const CEFR_LEVELS: LevelInfo[] = [
   { code: 'B2', label: 'B2 – Upper-intermediate', description: 'Upper-intermediate', canDo: 'Complex texts, fluent with native speakers, argue a point', vocabulary: '4,000 words' },
   { code: 'C1', label: 'C1 – Advanced', description: 'Advanced', canDo: 'Fluent, flexible, precise, professional use', vocabulary: '8,000 words' },
   { code: 'C2', label: 'C2 – Mastery', description: 'Mastery/Native-like', canDo: 'Everything — humor, nuance, culture, literature', vocabulary: '16,000+ words' },
+];
+
+export const JLPT_LEVELS: LevelInfo[] = [
+  { code: 'N5', label: 'N5 – Beginner', description: 'Absolute beginner', canDo: 'Greet people, numbers, days of the week, basic objects', vocabulary: '800 words' },
+  { code: 'N4', label: 'N4 – Elementary', description: 'Elementary', canDo: 'Daily routines, shopping, simple conversations', vocabulary: '1,500 words' },
+  { code: 'N3', label: 'N3 – Intermediate', description: 'Intermediate', canDo: 'Most everyday situations, news headlines, express opinions', vocabulary: '3,000 words' },
+  { code: 'N2', label: 'N2 – Upper-intermediate', description: 'Upper-intermediate', canDo: 'Newspapers, complex topics, nuanced conversations', vocabulary: '6,000 words' },
+  { code: 'N1', label: 'N1 – Advanced', description: 'Advanced/Near-native', canDo: 'Everything — literature, debates, business Japanese', vocabulary: '10,000+ words' },
 ];
 
 // ─── Languages ───────────────────────────────────────────────────────────────
@@ -140,6 +148,48 @@ export const LANGUAGES: Record<LanguageCode, Language> = {
     aiPersona: 'A casual British-American mix who talks too fast and uses too much slang but makes it work',
     greeting: 'Hey!',
     lastMessage: "right so what do you actually wanna talk about, no pressure 😄",
+  },
+  japanese: {
+    code: 'japanese',
+    name: 'Japanese',
+    nativeName: '日本語',
+    flag: '🇯🇵',
+    color: '#B91C1C',
+    bgColor: '#FFF1F2',
+    levelSystem: 'JLPT',
+    levels: JLPT_LEVELS,
+    aiName: 'ハナ',
+    aiPersona: 'A bubbly Tokyo girl obsessed with ramen and anime references who makes Japanese feel surprisingly approachable',
+    greeting: 'よ！',
+    lastMessage: "okay so. 3 writing systems. I know. but trust me it's fine 👀",
+  },
+  dutch: {
+    code: 'dutch',
+    name: 'Dutch',
+    nativeName: 'Nederlands',
+    flag: '🇳🇱',
+    color: '#C2410C',
+    bgColor: '#FFF7ED',
+    levelSystem: 'CEFR',
+    levels: CEFR_LEVELS,
+    aiName: 'Lars',
+    aiPersona: 'A refreshingly blunt Amsterdam guy who bikes everywhere, loves cheese, and will tell you exactly what you said wrong — nicely',
+    greeting: 'Hoi!',
+    lastMessage: "I'll be direct: Dutch is weird. but you'll love it 🚲",
+  },
+  thai: {
+    code: 'thai',
+    name: 'Thai',
+    nativeName: 'ภาษาไทย',
+    flag: '🇹🇭',
+    color: '#0F766E',
+    bgColor: '#F0FDFA',
+    levelSystem: 'CEFR',
+    levels: CEFR_LEVELS,
+    aiName: 'ฝ้าย',
+    aiPersona: 'A cheerful Bangkok local whose conversations somehow always end up being about food, and she is not sorry about it',
+    greeting: 'สวัสดี!',
+    lastMessage: "Thai tones are tricky but don't worry — just eat more pad thai while practicing 🍜",
   },
 };
 
@@ -235,6 +285,7 @@ export const getLanguage = (code: string): Language =>
 export const getLevels = (system: LevelSystem): LevelInfo[] => {
   if (system === 'HSK') return HSK_LEVELS;
   if (system === 'TOPIK') return TOPIK_LEVELS;
+  if (system === 'JLPT') return JLPT_LEVELS;
   return CEFR_LEVELS;
 };
 
@@ -246,6 +297,7 @@ export const getLevelInfo = (system: LevelSystem, code: string): LevelInfo => {
 export const getDefaultLevel = (system: LevelSystem): string => {
   if (system === 'HSK') return 'HSK1';
   if (system === 'TOPIK') return 'TOPIK1';
+  if (system === 'JLPT') return 'N5';
   return 'A1';
 };
 

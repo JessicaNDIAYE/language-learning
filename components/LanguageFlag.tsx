@@ -88,6 +88,32 @@ export default function LanguageFlag({ language }: { language: string }) {
         </svg>
       );
 
+    case 'japanese':
+      return (
+        <svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <rect width="30" height="20" fill="white"/>
+          <circle cx="15" cy="10" r="6" fill="#BC002D"/>
+        </svg>
+      );
+
+    case 'dutch':
+      return (
+        <svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <rect width="30" height="20" fill="#21468B"/>
+          <rect width="30" height="14" fill="white"/>
+          <rect width="30" height="7" fill="#AE1C28"/>
+        </svg>
+      );
+
+    case 'thai':
+      return (
+        <svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <rect width="30" height="20" fill="#A51931"/>
+          <rect y="4" width="30" height="12" fill="white"/>
+          <rect y="7" width="30" height="6" fill="#2D2A4A"/>
+        </svg>
+      );
+
     case 'english':
     default:
       return (

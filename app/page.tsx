@@ -6,10 +6,10 @@ import { ChevronRight } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 import AIAvatar from '@/components/AIAvatar';
 import LanguageFlag from '@/components/LanguageFlag';
-import { LANGUAGES, getDailyStarter, getDefaultLevel } from '@/lib/languages';
+import { LANGUAGES, getDailyStarter, getDefaultLevel, type LanguageCode } from '@/lib/languages';
 import { getLanguageSettings, getMessages } from '@/lib/storage';
 
-const LANG_ORDER = ['spanish', 'french', 'korean', 'chinese', 'english'] as const;
+const LANG_ORDER: LanguageCode[] = ['spanish', 'french', 'korean', 'chinese', 'japanese', 'dutch', 'thai', 'english'];
 
 function timeAgo(ms: number): string {
   const mins = Math.floor((Date.now() - ms) / 60000);

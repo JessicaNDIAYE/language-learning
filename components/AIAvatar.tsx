@@ -123,6 +123,108 @@ export default function AIAvatar({ language }: { language: string }) {
         </svg>
       );
 
+    case 'japanese':
+      // Hana: red background, straight jet-black hair with heavy bangs, warm skin
+      return (
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <rect width="100" height="100" fill="#DC2626"/>
+          {/* Top hair block */}
+          <rect x="18" y="0" width="64" height="28" rx="8" fill="#0A0A0A"/>
+          {/* Bangs across forehead */}
+          <rect x="16" y="24" width="68" height="14" rx="2" fill="#0A0A0A"/>
+          {/* Left side hair */}
+          <rect x="16" y="28" width="10" height="22" fill="#0A0A0A"/>
+          {/* Right side hair */}
+          <rect x="74" y="28" width="10" height="22" fill="#0A0A0A"/>
+          {/* Face oval */}
+          <ellipse cx="50" cy="57" rx="22" ry="24" fill="#F5D5B0"/>
+          {/* Eyebrows */}
+          <path d="M38 48.5 Q42 47 46 48.5" stroke="#0A0A0A" strokeWidth="2" fill="none" strokeLinecap="round"/>
+          <path d="M54 48.5 Q58 47 62 48.5" stroke="#0A0A0A" strokeWidth="2" fill="none" strokeLinecap="round"/>
+          {/* Eyes */}
+          <ellipse cx="42" cy="54" rx="4" ry="4.5" fill="#0A0A0A"/>
+          <ellipse cx="58" cy="54" rx="4" ry="4.5" fill="#0A0A0A"/>
+          {/* Eye shine */}
+          <circle cx="43.5" cy="52" r="1.5" fill="white" opacity="0.9"/>
+          <circle cx="59.5" cy="52" r="1.5" fill="white" opacity="0.9"/>
+          {/* Nose hint */}
+          <path d="M50 60 Q48 64 50 66 Q52 64 50 60" fill="none" stroke="#C8A888" strokeWidth="1.2" strokeLinecap="round"/>
+          {/* Gentle smile */}
+          <path d="M43 70 Q50 76 57 70" stroke="#B07050" strokeWidth="2" fill="none" strokeLinecap="round"/>
+          {/* Hair clip dots */}
+          <circle cx="72" cy="35" r="2" fill="#FF69B4"/>
+          <circle cx="68" cy="34" r="1.5" fill="#FF69B4"/>
+        </svg>
+      );
+
+    case 'dutch':
+      // Lars: orange background, short sandy blonde hair, light skin, direct blue-grey eyes
+      return (
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <rect width="100" height="100" fill="#EA580C"/>
+          {/* Top hair */}
+          <ellipse cx="50" cy="26" rx="22" ry="16" fill="#C4A053"/>
+          {/* Side sweep left */}
+          <path d="M28 26 Q24 32 26 40" stroke="#C4A053" strokeWidth="7" strokeLinecap="round" fill="none"/>
+          {/* Short right side */}
+          <path d="M72 28 Q76 34 74 42" stroke="#C4A053" strokeWidth="6" strokeLinecap="round" fill="none"/>
+          {/* Face oval */}
+          <ellipse cx="50" cy="57" rx="22" ry="25" fill="#FDDBB4"/>
+          {/* Straight eyebrows - direct look */}
+          <path d="M38 47 L46 47" stroke="#8B6030" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+          <path d="M54 47 L62 47" stroke="#8B6030" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+          {/* Eyes - light blue-grey */}
+          <ellipse cx="42" cy="53" rx="3.5" ry="4" fill="#5B8DB8"/>
+          <ellipse cx="58" cy="53" rx="3.5" ry="4" fill="#5B8DB8"/>
+          {/* Eye shine */}
+          <circle cx="43.2" cy="51.5" r="1.3" fill="white" opacity="0.9"/>
+          <circle cx="59.2" cy="51.5" r="1.3" fill="white" opacity="0.9"/>
+          {/* Nose hint */}
+          <path d="M50 59 Q48 63 50 65 Q52 63 50 59" fill="none" stroke="#C89878" strokeWidth="1.2" strokeLinecap="round"/>
+          {/* Confident half-smile */}
+          <path d="M44 70 Q50 74 57 71" stroke="#B07050" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+          {/* Stubble area hint */}
+          <ellipse cx="50" cy="70" rx="12" ry="4" fill="#E8C898" opacity="0.3"/>
+        </svg>
+      );
+
+    case 'thai':
+      // Fai: teal background, long straight black hair, warm Southeast Asian skin, wide welcoming smile
+      return (
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <rect width="100" height="100" fill="#0D9488"/>
+          {/* Top hair */}
+          <ellipse cx="50" cy="26" rx="22" ry="18" fill="#0A0A0A"/>
+          {/* Left hair flowing down */}
+          <rect x="16" y="28" width="12" height="45" rx="6" fill="#0A0A0A"/>
+          {/* Right hair flowing down */}
+          <rect x="72" y="28" width="12" height="45" rx="6" fill="#0A0A0A"/>
+          {/* Hair highlight streak */}
+          <path d="M44 5 Q46 30 45 50" stroke="#2A2A2A" strokeWidth="2" opacity="0.5" fill="none"/>
+          {/* Face oval */}
+          <ellipse cx="50" cy="55" rx="21" ry="24" fill="#D4956A"/>
+          {/* Eyebrows */}
+          <path d="M38 46 Q42 44 46 45.5" stroke="#2A1000" strokeWidth="2" fill="none" strokeLinecap="round"/>
+          <path d="M54 45.5 Q58 44 62 46" stroke="#2A1000" strokeWidth="2" fill="none" strokeLinecap="round"/>
+          {/* Eyes - dark brown, warm */}
+          <ellipse cx="42" cy="51" rx="4" ry="4.5" fill="#1A0A00"/>
+          <ellipse cx="58" cy="51" rx="4" ry="4.5" fill="#1A0A00"/>
+          {/* Eye shine */}
+          <circle cx="43.5" cy="49.5" r="1.5" fill="white" opacity="0.85"/>
+          <circle cx="59.5" cy="49.5" r="1.5" fill="white" opacity="0.85"/>
+          {/* Nose hint */}
+          <path d="M50 57 Q48 61 50 63 Q52 61 50 57" fill="none" stroke="#A06040" strokeWidth="1.2" strokeLinecap="round"/>
+          {/* Wide welcoming smile */}
+          <path d="M39 64 Q50 72 61 64" stroke="#B06040" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+          {/* Flower ornament */}
+          <circle cx="68" cy="28" r="3" fill="white" opacity="0.7"/>
+          <ellipse cx="68" cy="23" rx="1.5" ry="2" fill="white" opacity="0.6"/>
+          <ellipse cx="68" cy="33" rx="1.5" ry="2" fill="white" opacity="0.6"/>
+          <ellipse cx="63" cy="28" rx="2" ry="1.5" fill="white" opacity="0.6"/>
+          <ellipse cx="73" cy="28" rx="2" ry="1.5" fill="white" opacity="0.6"/>
+        </svg>
+      );
+
     case 'english':
     default:
       // Sam: purple background, curly natural dark brown hair, medium brown skin, warm wide smile
