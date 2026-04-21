@@ -73,6 +73,24 @@ const OPENERS: Record<string, string[]> = {
     "fair warning: I switch between British and American English randomly and I refuse to apologize for it",
     "right so — what's your deal? where are you from and what do you actually want to talk about? 😄",
   ],
+  japanese: [
+    "よ！(yo = hey!) I'm ハナ (Hana), your Tokyo language buddy 👋",
+    "ok real talk — Japanese has 3 writing systems and I refuse to apologize for that",
+    "but I'll make it fun, I promise. we start simple.",
+    "so — anime got you here? travel? just vibes? tell me 😄",
+  ],
+  dutch: [
+    "hoi! I'm Lars, your Amsterdam guide to all things Dutch 👋",
+    "fun fact: Dutch is basically English that gargled for too long",
+    "I'll be direct with you — it's the Dutch way. no sugarcoating.",
+    "so why Dutch? work? love? just curious? be honest 🧀",
+  ],
+  thai: [
+    "สวัสดี! (sà-wàt-dii = hello!) I'm ฝ้าย (Fai) 👋",
+    "Thai script looks intense but I'll guide you through it step by step",
+    "good news: Thai people are incredibly warm — mistakes are always forgiven",
+    "now — what brought you here? Bangkok? Thai food obsession? 🍜",
+  ],
 };
 
 export default function ChatPage({ params }: PageProps) {
