@@ -26,6 +26,7 @@ export async function POST(request: Request) {
     scenario = null,
     memory = null,
     vibeLevel = 'normal',
+    languageMode = 'mixed',
   } = body as Record<string, unknown>;
 
   if (!Array.isArray(messages) || messages.length === 0) {
@@ -43,6 +44,7 @@ export async function POST(request: Request) {
       scenario: (scenario as string) || null,
       userMemory: (memory as string) || null,
       vibeLevel: (vibeLevel as VibeLevel) || 'normal',
+      languageMode: (languageMode as 'immersive' | 'mixed') || 'mixed',
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

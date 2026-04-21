@@ -2,12 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 import AIAvatar from '@/components/AIAvatar';
 import LanguageFlag from '@/components/LanguageFlag';
 import { LANGUAGES, getDailyStarter, getDefaultLevel, type LanguageCode } from '@/lib/languages';
-import { getLanguageSettings, getMessages } from '@/lib/storage';
+import {
+  getLanguageSettings, getMessages,
+  getPrimaryLanguage, getStreak, getDailyData, isOnboardingComplete, updateStreak,
+  type StreakData, type DailyData,
+} from '@/lib/storage';
 
 const LANG_ORDER: LanguageCode[] = ['spanish', 'french', 'korean', 'chinese', 'japanese', 'dutch', 'thai', 'english'];
 
@@ -21,11 +26,22 @@ function timeAgo(ms: number): string {
 }
 
 export default function HomePage() {
+  const router = useRouter();
   const [daily, setDaily] = useState(() => getDailyStarter());
   const [greeting, setGreeting] = useState('hey there');
   const [langData, setLangData] = useState<Record<string, { level: string; lastActive?: number; msgCount: number; preview: string }>>({});
+  const [primaryLang, setPrimaryLang] = useState<string | null>(null);
+  const [streak, setStreak] = useState<StreakData>({ count: 0, lastDate: '' });
+  const [dailyData, setDailyData] = useState<DailyData>({ date: '', messagesSent: 0, goal: 5 });
 
   useEffect(() => {
+    // First-launch redirect
+    if (!isOnboardingComplete()) {
+      router.replace('/onboarding');
+      return;
+    }
+    updateStreak();
+
     const hour = new Date().getHours();
     setGreeting(
       hour < 5  ? 'still up? same' :
@@ -34,6 +50,10 @@ export default function HomePage() {
       hour < 21 ? 'good evening' : 'night owl?'
     );
     setDaily(getDailyStarter());
+
+    setPrimaryLang(getPrimaryLanguage());
+    setStreak(getStreak());
+    setDailyData(getDailyData());
 
     const data: typeof langData = {};
     for (const code of LANG_ORDER) {
@@ -49,7 +69,7 @@ export default function HomePage() {
       };
     }
     setLangData(data);
-  }, []);
+  }, [router]);
 
   return (
     <div className="mobile-shell" style={{ background: '#F0EDE8' }}>
@@ -57,9 +77,16 @@ export default function HomePage() {
         {/* Header */}
         <div className="pt-14 pb-4 px-5 bg-transparent">
           <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{greeting}</p>
-          <h1 className="text-2xl font-bold leading-tight" style={{ color: '#1C1917' }}>
-            Your AI Friends
-          </h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold leading-tight" style={{ color: '#1C1917' }}>
+              Your AI Friends
+            </h1>
+            {streak.count > 0 && (
+              <span className="bg-orange-100 text-orange-600 text-xs font-bold px-2 py-1 rounded-full">
+                🔥 {streak.count}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Daily Starter Card */}
@@ -107,23 +134,50 @@ export default function HomePage() {
 
         {/* Chat List */}
         <div className="px-5">
+          {/* Daily goal progress */}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xs text-gray-400">Objectif du jour</span>
+            <div className="flex gap-1">
+              {Array.from({ length: dailyData.goal }).map((_, i) => (
+                <div
+                  key={i}
+                  className="w-2 h-2 rounded-full"
+                  style={{ background: i < dailyData.messagesSent ? '#F97316' : '#E5E7EB' }}
+                />
+              ))}
+            </div>
+          </div>
           <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: '#9CA3AF' }}>
             your chats
           </p>
           <div className="flex flex-col">
-            {LANG_ORDER.map((code) => {
+            {(primaryLang ? [primaryLang as LanguageCode, ...LANG_ORDER.filter(c => c !== primaryLang)] : LANG_ORDER).map((code) => {
               const lang = LANGUAGES[code];
               const data = langData[code];
+              const isPrimary = code === primaryLang;
 
               return (
                 <Link key={code} href={`/chat/${code}`}>
                   <div
-                    className="flex items-center gap-3 p-3.5 rounded-2xl mb-3"
-                    style={{ background: 'white', boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}
+                    className="flex items-center gap-3 p-3.5 rounded-2xl mb-3 relative"
+                    style={{
+                      background: 'white',
+                      boxShadow: '0 1px 6px rgba(0,0,0,0.06)',
+                      borderLeft: isPrimary ? `3px solid ${lang.color}` : undefined,
+                    }}
                   >
+                    {/* Primary badge */}
+                    {isPrimary && (
+                      <span
+                        className="absolute top-2 right-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                        style={{ background: lang.bgColor, color: lang.color }}
+                      >
+                        ⭐ Principal
+                      </span>
+                    )}
                     {/* Avatar zone */}
                     <div className="relative flex-shrink-0">
-                      <div className="w-16 h-16 rounded-2xl overflow-hidden">
+                      <div className={`${isPrimary ? 'w-[72px] h-[72px]' : 'w-16 h-16'} rounded-2xl overflow-hidden`}>
                         <AIAvatar language={code} />
                       </div>
                       {/* Flag badge */}

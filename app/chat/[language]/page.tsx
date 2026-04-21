@@ -14,7 +14,7 @@ import {
 import AIAvatar from '@/components/AIAvatar';
 import {
   getMessages, saveMessages, getLanguageSettings, saveLanguageSettings,
-  buildMemorySummary, setLastLanguage, type StoredMessage, type VibeLevel,
+  buildMemorySummary, setLastLanguage, incrementDailyMessages, type StoredMessage, type VibeLevel,
 } from '@/lib/storage';
 
 interface Message {
@@ -103,6 +103,7 @@ export default function ChatPage({ params }: PageProps) {
   // localStorage value is loaded in useEffect below
   const [levelCode, setLevelCode] = useState(defaultLevel);
   const [vibeLevel, setVibeLevel] = useState<VibeLevel>('normal');
+  const [languageMode, setLanguageMode] = useState<'immersive' | 'mixed'>('mixed');
 
   // Scenario & UI state
   const [activeScenario, setActiveScenario] = useState<typeof ROLEPLAY_SCENARIOS[0] | null>(null);
@@ -126,6 +127,7 @@ export default function ChatPage({ params }: PageProps) {
     const savedSettings = getLanguageSettings(language);
     if (savedSettings.level) setLevelCode(savedSettings.level);
     if (savedSettings.vibeLevel) setVibeLevel(savedSettings.vibeLevel);
+    if (savedSettings.languageMode) setLanguageMode(savedSettings.languageMode);
 
     const stored = getMessages(language);
     const starter = searchParams.get('starter');
@@ -204,6 +206,7 @@ export default function ChatPage({ params }: PageProps) {
     setMessages(updatedMessages);
     setInput('');
     setIsLoading(true);
+    incrementDailyMessages();
 
     const assistantId = `ai_${Date.now()}`;
     setMessages(prev => [...prev, {
@@ -232,6 +235,7 @@ export default function ChatPage({ params }: PageProps) {
             : null,
           memory,
           vibeLevel,
+          languageMode,
         }),
       });
 
@@ -463,6 +467,31 @@ export default function ChatPage({ params }: PageProps) {
                     </button>
                   );
                 })}
+              </div>
+            </div>
+            {/* Language mode */}
+            <div className="px-3 py-3" style={{ borderBottom: '1px solid #F8F7FF' }}>
+              <p className="text-[10px] font-semibold uppercase tracking-wide mb-2" style={{ color: '#9CA3AF' }}>
+                Mode langue
+              </p>
+              <div className="flex gap-1.5">
+                {(['mixed', 'immersive'] as const).map(mode => (
+                  <button
+                    key={mode}
+                    onClick={() => {
+                      setLanguageMode(mode);
+                      saveLanguageSettings(language, { languageMode: mode });
+                      setShowMenu(false);
+                    }}
+                    className="flex-1 py-1.5 rounded-xl text-[11px] font-semibold"
+                    style={{
+                      background: languageMode === mode ? '#1A1A2E' : '#F8F7FF',
+                      color: languageMode === mode ? 'white' : '#6B7280',
+                    }}
+                  >
+                    {mode === 'mixed' ? '🔁 Mix' : '🔒 Immersif'}
+                  </button>
+                ))}
               </div>
             </div>
             <button

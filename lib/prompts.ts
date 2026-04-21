@@ -391,10 +391,11 @@ export interface PromptOptions {
   scenario?: string | null;
   userMemory?: string | null;
   vibeLevel?: VibeLevel;
+  languageMode?: 'immersive' | 'mixed';
 }
 
 export function buildSystemPrompt(opts: PromptOptions): string {
-  const { language, levelCode, levelSystem, scenario, userMemory, vibeLevel = 'normal' } = opts;
+  const { language, levelCode, levelSystem, scenario, userMemory, vibeLevel = 'normal', languageMode } = opts;
   const personality = PERSONALITIES[language];
   const levelInfo = getLevelInfo(levelSystem, levelCode);
   const targetLang = TARGET_LANGUAGE[language];
@@ -404,6 +405,10 @@ export function buildSystemPrompt(opts: PromptOptions): string {
   else if (levelSystem === 'TOPIK') levelGuidance = TOPIK_GUIDANCE[levelCode] || TOPIK_GUIDANCE.TOPIK1;
   else if (levelSystem === 'JLPT') levelGuidance = JLPT_GUIDANCE[levelCode] || JLPT_GUIDANCE.N5;
   else levelGuidance = (CEFR_GUIDANCE[language] || CEFR_GUIDANCE.spanish)[levelCode] || CEFR_GUIDANCE.spanish.A1;
+
+  const modeRule = languageMode === 'immersive'
+    ? `\nFORCE IMMERSIVE MODE: Write 100% in ${targetLang}. Zero English allowed — not even inline translations. If they don't understand, simplify the ${targetLang} sentence instead.`
+    : '';
 
   const scenarioBlock = scenario
     ? `
@@ -442,7 +447,7 @@ You are teaching ${targetLang}. The user is here to SEE and READ ${targetLang}, 
 • English appears ONLY as inline word translations: 你好 (nǐ hǎo = hi) or hola (= hi)
 • When the user writes to you in English: respond in ${targetLang} anyway — just keep it simple enough for their level
 • NEVER write an English-only sentence
-• The more ${targetLang} they read, the faster they learn — that is your job
+• The more ${targetLang} they read, the faster they learn — that is your job${modeRule}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CORE RULES

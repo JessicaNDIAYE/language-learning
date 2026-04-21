@@ -16,6 +16,7 @@ export interface LanguageSettings {
   lastChatAt?: number;
   messageCount: number;
   vibeLevel?: VibeLevel;
+  languageMode?: 'immersive' | 'mixed';
 }
 
 export interface UserMemory {
@@ -102,6 +103,94 @@ export function getLastLanguage(): string | null {
 export function setLastLanguage(lang: string) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(KEYS.lastLang, lang);
+}
+
+// ─── Onboarding ───────────────────────────────────────────────────────────────
+
+export function isOnboardingComplete(): boolean {
+  if (typeof window === 'undefined') return true; // SSR: assume complete to avoid flash
+  return localStorage.getItem('lingua_onboarding') === 'done';
+}
+
+export function completeOnboarding(language: string, levelCode: string, reason: string) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('lingua_onboarding', 'done');
+  localStorage.setItem('lingua_primary', language);
+  localStorage.setItem('lingua_reason', reason);
+  void levelCode; // caller will call saveLanguageSettings separately
+}
+
+// ─── Primary Language ─────────────────────────────────────────────────────────
+
+export function getPrimaryLanguage(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('lingua_primary');
+}
+
+export function setPrimaryLanguage(language: string) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('lingua_primary', language);
+}
+
+// ─── Streak ───────────────────────────────────────────────────────────────────
+
+export interface StreakData {
+  count: number;
+  lastDate: string; // YYYY-MM-DD
+}
+
+function todayStr(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+export function getStreak(): StreakData {
+  if (typeof window === 'undefined') return { count: 0, lastDate: '' };
+  try {
+    const raw = localStorage.getItem('lingua_streak');
+    return raw ? JSON.parse(raw) : { count: 0, lastDate: '' };
+  } catch {
+    return { count: 0, lastDate: '' };
+  }
+}
+
+export function updateStreak(): StreakData {
+  if (typeof window === 'undefined') return { count: 0, lastDate: '' };
+  const today = todayStr();
+  const streak = getStreak();
+  if (streak.lastDate === today) return streak;
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const newCount = streak.lastDate === yesterday ? streak.count + 1 : 1;
+  const updated: StreakData = { count: newCount, lastDate: today };
+  localStorage.setItem('lingua_streak', JSON.stringify(updated));
+  return updated;
+}
+
+// ─── Daily Goal ───────────────────────────────────────────────────────────────
+
+export interface DailyData {
+  date: string;
+  messagesSent: number;
+  goal: number;
+}
+
+export function getDailyData(): DailyData {
+  if (typeof window === 'undefined') return { date: '', messagesSent: 0, goal: 5 };
+  try {
+    const raw = localStorage.getItem('lingua_daily');
+    const data: DailyData = raw ? JSON.parse(raw) : { date: '', messagesSent: 0, goal: 5 };
+    if (data.date !== todayStr()) return { date: todayStr(), messagesSent: 0, goal: 5 };
+    return data;
+  } catch {
+    return { date: todayStr(), messagesSent: 0, goal: 5 };
+  }
+}
+
+export function incrementDailyMessages(): DailyData {
+  if (typeof window === 'undefined') return { date: '', messagesSent: 0, goal: 5 };
+  const data = getDailyData();
+  const updated: DailyData = { ...data, date: todayStr(), messagesSent: data.messagesSent + 1 };
+  localStorage.setItem('lingua_daily', JSON.stringify(updated));
+  return updated;
 }
 
 // ─── Memory summary for AI ────────────────────────────────────────────────────
